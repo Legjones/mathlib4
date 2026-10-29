@@ -7,6 +7,7 @@ module
 
 public import Mathlib.AlgebraicTopology.ModelCategory.IsCofibrant
 public import Mathlib.AlgebraicTopology.SimplicialSet.CategoryWithFibrations
+public import Mathlib.AlgebraicTopology.SingularSet
 
 /-!
 # Kan complexes
@@ -118,5 +119,15 @@ instance {X : SSet.{u}} [KanComplex X] : KanComplex X.op := by
   rw [stdSimplex.δ_comp_yonedaEquiv_symm, op_δ, Equiv.apply_symm_apply,
     ← stdSimplex.yonedaEquiv_δ_comp, hf.δ_liftOfKanComplex ..]
   simp
+
+
+
+/- Lemma about map into singular chains being same as map from geometric n-simplex
+into space:-/
+
+lemma ReducingtoGeometry {X : TopCat.{u}} {n : ℕ} {i : Fin (n + 2)} (σ₀ : (Λ[n + 1, i] : SSet) ⟶ TopCat.toSSet.obj X) :
+    ((∃ δ : |Δ[n + 1]| → X), δ₀ =  ) → ((∃ σ : Δ[n + 1] ⟶ TopCat.toSSet.obj X), σ₀ = Λ[n + 1, i].ι ≫ σ)
+
+
 
 end SSet
