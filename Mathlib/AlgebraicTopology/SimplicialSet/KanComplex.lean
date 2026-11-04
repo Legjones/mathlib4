@@ -7,6 +7,8 @@ module
 
 public import Mathlib.AlgebraicTopology.ModelCategory.IsCofibrant
 public import Mathlib.AlgebraicTopology.SimplicialSet.CategoryWithFibrations
+public import Mathlib.AlgebraicTopology.SingularSet
+public import Mathlib.AlgebraicTopology.SimplicialSet.Subcomplex
 
 /-!
 # Kan complexes
@@ -99,6 +101,60 @@ lemma KanComplex.iff {Z : SSet.{u}} :
     l := φ
     fac_left := horn.hom_ext' (by simpa using hφ)
     fac_right := by subsingleton }⟩⟩
+
+/- Utilizing the above, and our adjunction between the singular simplicial set functor
+and geometric realization, we get the following as a step towards showing singular simplicial
+sets of spaces are Kan.-/
+abbrev HornInclusionHom (n : ℕ) (i : Fin (n + 2)) (Z : SSet.{u}) :
+    (Δ[n+1] ⟶ Z) → ((Λ[n+1,i] : SSet) ⟶ Z) := by
+  intro f
+  exact Λ[n+1,i].ι ≫ f
+
+
+/- The following is just a rephrasing of KanComplex.iff, which we follow with a lemma that simply
+comes from naturality of the hom isomorphism in our singular simplicial set geometric realization
+adjunction. -/
+
+lemma KanComplex.iff' {Z : SSet.{u}} :
+    KanComplex Z ↔
+      ∀ {n : ℕ} {i : Fin (n + 2)},
+      Function.Surjective (HornInclusionHom n i Z) := by
+  rw [KanComplex.iff]
+  constructor
+  · intro h n i g
+    have fill := h (n := n) (i := i) (fun j nj => horn.ι i j nj ≫ g) (horn.IsCompatible.of_hom g)
+    simp [HornInclusionHom]
+    obtain ⟨φ, hφ⟩ := fill
+    use φ
+    apply horn.hom_ext'
+    intro j nj
+    have thing := (horn.ι_ι i j nj)
+    have thing' : ((horn.ι i j nj) ≫ Λ[n + 1, i].ι ≫ φ = stdSimplex.δ j ≫ φ) :=
+    congrArg (fun h => h ≫ φ) thing
+    rw [thing']
+    rw [hφ j nj]
+  · intro hs n i s cs
+    obtain ⟨g, hg⟩ := SSet.horn.IsCompatible.exists_desc cs
+    obtain ⟨φ, hφ⟩ := hs g
+    use φ
+    rw [HornInclusionHom] at hφ
+    intro j nj
+    have stuff := (hg j nj)
+    rw [← hφ] at stuff
+    rw [← horn.ι_ι i j nj]
+    exact stuff
+
+/- This is just saying that our naturality square for our hom-adjunction is surjective on one
+vertical iff it is on the other, then using the previous lemma.-/
+
+lemma SingularKamComplex.iff {X : TopCat.{u}} :
+    KanComplex (TopCat.toSSet.obj X) ↔
+      ∀ {n: ℕ} {i : Fin (n+2)},
+      Function.Surjective ((CategoryTheory.Adjunction.homEquiv (sSetTopAdj) (Δ[n]) (X)).invFun Λ[n+1,i].ι)
+      --((HornInclusionHom n i (TopCat.toSSet.obj X)))) := by
+
+
+
 
 instance {X : SSet.{u}} [KanComplex X] : KanComplex X.op := by
   rw [KanComplex.iff]
