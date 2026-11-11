@@ -147,10 +147,44 @@ lemma KanComplex.iff' {Z : SSet.{u}} :
 /- This is just saying that our naturality square for our hom-adjunction is surjective on one
 vertical iff it is on the other, then using the previous lemma.-/
 
+abbrev GeoHornInclusionHom (n : ℕ) (i : Fin (n + 2)) (Z : TopCat.{u}) :
+    (|Δ[n+1]| ⟶ Z) → (|Λ[n+1,i]| ⟶ Z) := by
+  intro f
+  exact (SSet.toTop.map Λ[n+1,i].ι) ≫ f
+
 lemma SingularKamComplex.iff {X : TopCat.{u}} :
     KanComplex (TopCat.toSSet.obj X) ↔
-      ∀ {n: ℕ} {i : Fin (n+2)},
-      Function.Surjective ((CategoryTheory.Adjunction.homEquiv (sSetTopAdj) (Δ[n]) (X)).invFun Λ[n+1,i].ι)
+      ∀ {n: ℕ} {i : Fin (n + 2)},
+      Function.Surjective (GeoHornInclusionHom n i X) := by
+    rw [KanComplex.iff']
+    constructor
+    · intro h n i f
+      --have hornhomad := (CategoryTheory.Adjunction.homEquiv (sSetTopAdj) (Λ[n+1, i]) (X))
+      obtain ⟨φ, hφ⟩ := (h ((CategoryTheory.Adjunction.homEquiv (sSetTopAdj) (Λ[n+1, i]) (X)).toFun f))
+      --have simphomad := (CategoryTheory.Adjunction.homEquiv (sSetTopAdj) (Δ[n+1]) (X))
+      use (CategoryTheory.Adjunction.homEquiv (sSetTopAdj) (Δ[n+1]) (X)).invFun φ
+      rw [GeoHornInclusionHom]
+      have e := sSetTopAdj.homEquiv_naturality_right_square (Λ[n+1,i].ι) (φ) ((CategoryTheory.Adjunction.homEquiv (sSetTopAdj) (Λ[n+1, i]) (X)).toFun f) (TopCat.instCategory.id X) hφ
+      rw [Category.comp_id] at e
+      have eq1 := (CategoryTheory.Adjunction.homEquiv (sSetTopAdj) (Λ[n+1, i]) (X)).left_inv f
+      rw [Equiv.invFun_as_coe] at eq1
+      rw [eq1] at e
+      rw [Equiv.invFun_as_coe]
+      exact e
+    · intro h n i f
+      sorry -- mirror the above...
+
+--LOOK AT SimplexCategory.toTopHomeo !!! Probably includes steps 3 and 4
+
+
+
+      --have f' := Λ[n+1, i].ι ≫ φ
+      --have
+      --use (h (homad.invFun f))
+
+
+
+      --((CategoryTheory.Adjunction.homEquiv (sSetTopAdj) (Δ[n]) (X)).invFun Λ[n+1,i].ι)
       --((HornInclusionHom n i (TopCat.toSSet.obj X)))) := by
 
 
