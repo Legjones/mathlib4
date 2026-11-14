@@ -172,7 +172,18 @@ lemma SingularKamComplex.iff {X : TopCat.{u}} :
       rw [Equiv.invFun_as_coe]
       exact e
     · intro h n i f
-      sorry -- mirror the above...
+      obtain ⟨φ, hφ⟩ := (h ((CategoryTheory.Adjunction.homEquiv (sSetTopAdj) (Λ[n+1,i]) (X)).symm f))
+      use (CategoryTheory.Adjunction.homEquiv (sSetTopAdj) (Δ[n+1]) (X)) φ
+      rw [HornInclusionHom]
+      have e := sSetTopAdj.homEquiv_naturality_left_square (Λ[n+1,i].ι) (φ) ((CategoryTheory.Adjunction.homEquiv (sSetTopAdj) (Λ[n+1, i]) (X)).symm f) (TopCat.instCategory.id X) hφ
+      rw [(TopCat.toSSet).map_id] at e
+      rw [Category.comp_id] at e
+      --have eq2 := (CategoryTheory.Adjunction.homEquiv (sSetTopAdj) (Λ[n+1, i]) (X)).right_inv f
+      --rw [Equiv.invFun_as_coe] at eq2
+      have t := (CategoryTheory.Adjunction.homEquiv (sSetTopAdj) (Λ[n+1, i]) (X)).apply_symm_apply f
+      rw [t] at e
+      exact e
+
 
 --LOOK AT SimplexCategory.toTopHomeo !!! Probably includes steps 3 and 4
 
